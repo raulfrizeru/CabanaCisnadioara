@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acasa</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <header>
+        <nav>
+              <ul>
+                <li><a href="index.html">Acasa</a></li>
+                <li><a href="cautare.html">Rezerva</a></li>
+                <li><a href="locatii.html">Locatie</a></li>
+                <li><a href="contact.html">Contact</a></li>
+              </ul>
+            </nav>
+    </header>
+    <main>
+        <section class="house-carousel">
+            <div class="carousel-container">
+                <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+                <img class="house-slide" src="cabana-ansamblu.webp" alt="Cabana">
+                <img class="house-slide" src="cabana-living.webp" alt="Living">
+                <img class="house-slide" src="cabana-dormitor1.webp" alt="Dormitor 1">
+                <img class="house-slide" src="cabana-dormitor2.webp" alt="Dormitor 2">
+                <img class="house-slide" src="cabana-bucatarie.webp" alt="Bucatarie">
+                <img class="house-slide" src="cabana-baie.jpg" alt="Baie">
+                <img class="house-slide" src="cabana-bucatarie-exterioara.png" alt="Bucatarie exterioara">
+                <img class="house-slide" src="cabana-filigorie.webp" alt="Filigorie">
+                <button class="next" onclick="changeSlide(1)">&#10095;</button>
+            </div>
+        </section>
+        <section class="house-info">
+            <div class="house-description">
+                <h2>Descriere</h2>
+                <p>
+                    În inima unei păduri dese și misterioase, se află o cabană , înfășurată de verdeață sălbatică 
+                    și învăluită în liniștea adâncă a naturii. Este un sanctuar al păcii și al întoarcerii la simplitate, 
+                    unde lumea modernă pare să se estompeze într-o armonie cu lumea naturală înconjurătoare. Cabana se 
+                    află în localitatea Cisnădioara, la 12 km de Sibiu, 1km de Cisnadie și 31 km de Paltiniș. Această 
+                    cabană este alcătuită din: 2 dormitoare la etaj (în fiecare cameră există câte un pat matrimonial), 
+                    balcon, 2 bucătării complet utilate ( 1 de vară și 1 în casă), living (cu o canapea extensibila, TV Smart, 
+                    încălzire centrală), baie, o parcare în care încap aproximativ 4 mașini, filigorie, grătar. Casa beneficiază 
+                    de toate utilitățile necesare. Cabana poate găzdui maxim 6 persoane.
+                </p>
+            </div>
+            <div class="house-details">
+                <h2>Detalii</h2>
+                <ul>
+                    <li>Locatie: Cisnădioara, Sibiu</li>
+                    <li>Suparafata: 100 m²</li>
+                    <li>Camere:4 sau mai multe</li>
+                    <li>Bai: 1</li>
+                    <li>Pret: 600 RON/noapte</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+    <script src="index.js"></script>
+</body>
+</html>

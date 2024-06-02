@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezervări</title>
+    <link rel="stylesheet" href="cautare.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+</head>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Acasa</a></li>
+            <li><a href="cautare.html">Rezerva</a></li>
+            <li><a href="locatii.html">Locatie</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div id='calendar'></div>
+
+    <div id="reservationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">Rezervare Nouă</div>
+            <form id="reservationForm" class="modal-form">
+                <label for="Nume">Nume</label>
+                <input type="text" placeholder="ex. Popescu Ion" id="Nume" name="Nume" required>
+                <label for="NrTelefon">Număr de Telefon</label>
+                <input type="tel" placeholder="ex. 0743375683" id="NrTelefon" name="NrTelefon" required>
+                <button type="submit" name="submitData" id = "submitData">Rezervă</button>
+            </form>
+        </div>
+    </div>
+    <div id="notification" class="notification">Rezervarea a fost efectuată cu succes!</div>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    
+</body>
+
+</html>
+
+
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+import { getFirestore, setDoc, addDoc, getDocs, doc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// TODO: Replace the following with your app's Firebase project configuration
+// See: https://support.google.com/firebase/answer/7015592
+const firebaseConfig = {
+    apiKey: "AIzaSyBv9RnwLfNY7xsSEISBf4JL2mv-BMijuAg",
+    authDomain: "cabana-rezervari.firebaseapp.com",
+    projectId: "cabana-rezervari",
+    storageBucket: "cabana-rezervari.appspot.com",
+    messagingSenderId: "940267206146",
+    appId: "1:940267206146:web:260758f7b882dba5be991b"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+document.addEventListener('DOMContentLoaded', async function() {
+    const nume = document.getElementById('Nume');
+    const telefon = document.getElementById('NrTelefon');
+    const rezerva = document.getElementById('submitData');
+    let selectedInfo;
+
+    async function loadReservations() {
+        const rezervari = collection(db, "rezervari");
+        const rezervariSnapshot = await getDocs(rezervari);
+        let events = [];
+        rezervariSnapshot.forEach((doc) => {
+            let data = doc.data();
+            console.log("Loaded event: ", data); // Logăm datele încărcate pentru debugging
+            events.push({
+                id: doc.id,
+                title: data.Nume,
+                start: data["data intrare"],
+                end: data["data iesire"],
+                backgroundColor: data.culoare,
+                borderColor: data.culoare,
+                textColor: "white",
+                extendedProps: {
+                    phone: data.NrTelefon,
+                    status: 'booked'
+                },
+                editable: false,
+                durationEditable: false
+            });
+        });
+        return events;
+    }
+
+    function getRandomColor() {
+        let letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    rezerva.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const randomColor = getRandomColor();
+        try {
+            await addDoc(collection(db, "rezervari"), {
+                Nume: nume.value,
+                NrTelefon: telefon.value,
+                "data intrare": selectedInfo.startStr,
+                "data iesire": selectedInfo.endStr,
+                culoare: randomColor
+            });
+            console.log("Rezervare adaugată cu succes!"); // Logăm adăugarea rezervării pentru debugging
+            alert("Rezervarea a fost efectuata cu succes!");
+            resetForm();
+            selectedInfo = null;
+            modal.style.display = "none";
+            calendar.refetchEvents();  // Reîncarcă evenimentele pentru a actualiza calendarul
+        } catch (error) {
+            console.error("Eroare la adăugarea documentului: ", error);
+        }
+    });
+
+    var calendarEl = document.getElementById('calendar');
+    var modal = document.getElementById("reservationModal");
+    var span = document.getElementsByClassName("close")[0];
+    var notification = document.getElementById("notification");
+    var today = new Date().toISOString().slice(0,10);
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        selectable: true,
+        selectHelper: true,
+        events: async function(fetchInfo, successCallback, failureCallback) {
+            let events = await loadReservations();
+            console.log("Reîncărcare evenimente: ", events); // Logăm evenimentele reîncărcate pentru debugging
+            successCallback(events);
+        },
+        select: function(info) {
+            if (info.startStr < today) {
+                alert("Nu puteți rezerva pentru zilele anterioare.");
+                return;
+            }
+            let eventExists = calendar.getEvents().some(event => {
+                return (info.start >= event.start && info.start < event.end) || 
+                       (info.end > event.start && info.end <= event.end) || 
+                       (info.start <= event.start && info.end >= event.end);
+            });
+            if (eventExists) {
+                alert("Această perioadă este deja rezervată.");
+                return;
+            }
+            resetForm();
+            selectedInfo = info;
+            modal.style.display = "block";
+        },
+        eventRender: function(info) {
+            info.el.style.fontSize = "1.2em"; 
+            info.el.style.fontWeight = "bold";
+            info.el.style.borderRadius = "5px";
+        }
+    });
+    calendar.render();
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function resetForm() {
+        document.getElementById("reservationForm").reset();
+    }
+
+    function showNotification() {
+        notification.className = "notification show";
+        setTimeout(function() {
+            notification.className = notification.className.replace("show", "");
+        }, 3000);
+    }
+});
+
+
+
+</script>
