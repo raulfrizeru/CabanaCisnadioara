@@ -11,6 +11,10 @@ body {
     position: relative;
 }
 
+.linkuri{
+  font-size: 5 px;
+}
+
 nav {
   background-color:  rgb(38, 136, 27);
     overflow: hidden;
